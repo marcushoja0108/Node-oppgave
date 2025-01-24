@@ -1,0 +1,14 @@
+{
+  "name": "node-oppgave",
+  "version": "1.0.0",
+  "description": "Første node oppgave",
+  "main": "index.js",
+  "scripts": {
+    "test": "console.log(\"hello world\")"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "readline": "^1.3.0"
+  }
+}
