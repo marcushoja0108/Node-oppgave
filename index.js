@@ -1,66 +1,74 @@
 const readline = require('readline');
+const fs = require('fs/promises')
 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 })
-const notes = []
-let noteId = 0;
 
-let valid = false;
-while(valid == false){
-rl.question('Commands:  New_____View_____Delete', (menuInput) => {
-        switch(menuInput.toLocaleLowerCase){
-            case 'new':
-                newNote()
-                valid == true
-                break;
-            case 'view':
-                viewNotes()
-                valid == true
-                break;
-            case 'delete':
-                deleteNotes()
-                valid == true
-                break;
-            default:
-                invalidChoice()
-                break;
-        }
-    }
-})
+mainMenu()
+function mainMenu(){
+    rl.question('Commands:  New || View || Delete || Exit  ', (menuInput) => {
+            switch(menuInput.toLocaleLowerCase()){
+                case 'new':
+                    newNote()
+                    break;
+                case 'view':
+                    viewNotes()
+                    mainMenu()
+                    break;
+                case 'delete':
+                    deleteNotes()
+                    break;
+                case 'exit':
+                    exitApp()
+                    break;
+                default:
+                    invalidChoice()
+                    mainMenu()
+                    break;
+            }
+        })
+}
 
 
 function newNote(){
-    rl.question('Type note', (noteInput) => {
-        let newNote = {
-            id: noteId,
-            note: noteInput
-        }
-        notes.push(newNote)
-        console.log(newNote)
-        noteId++;
-        rl.close();
+    rl.question('Type note:  ', (noteInput) => {
+        fs.appendFile('notes.txt', noteInput + '\n')
+        console.log(`Note added`)
+        mainMenu()
     });
 }
 
 function viewNotes(){
-    if(notes.length > 0){
-        notes.forEach(element => {
-            console.log(`Id: ${element.id}
-                ${element.note}`)
-        });
-
+fs.readFile('notes.txt', 'utf-8', (err, notes) => {
+    if(err){
+        console.log('No notes to show');
     }
     else{
-        console.log('No notes to show')
+        console.log("Notes:\n" + notes);
     }
+    mainMenu();
+});
 }
 
 function deleteNotes(){
-
+    rl.question('Are you sure you want to delete notes? y/n ', (input) => {
+    switch(input){
+        case 'y':
+            fs.unlink('notes.txt')
+            break;
+        case 'n':
+            break;
+    }
+        mainMenu()
+    });
 }
 
 function invalidChoice(){
     console.log("Invalid choice");
+}
+
+function exitApp(){
+    rl.close()
 }
