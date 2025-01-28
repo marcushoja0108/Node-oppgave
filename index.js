@@ -1,5 +1,5 @@
 const readline = require('readline');
-const fs = require('fs/promises')
+const fs = require('fs')
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -15,7 +15,6 @@ function mainMenu(){
                     break;
                 case 'view':
                     viewNotes()
-                    mainMenu()
                     break;
                 case 'delete':
                     deleteNotes()
@@ -34,8 +33,10 @@ function mainMenu(){
 
 function newNote(){
     rl.question('Type note:  ', (noteInput) => {
-        fs.appendFile('notes.txt', noteInput + '\n')
-        console.log(`Note added`)
+        fs.appendFile('notes.txt', noteInput + '\n', (err) => {
+            if(err) console.log("Error adding a note", err);
+            else console.log(`\nNote added`)
+        })
         mainMenu()
     });
 }
@@ -46,23 +47,32 @@ fs.readFile('notes.txt', 'utf-8', (err, notes) => {
         console.log('No notes to show');
     }
     else{
-        console.log("Notes:\n" + notes);
+        console.log(`Notes:\n  ${notes}`);
     }
     mainMenu();
 });
 }
 
 function deleteNotes(){
-    rl.question('Are you sure you want to delete notes? y/n ', (input) => {
-    switch(input){
-        case 'y':
-            fs.unlink('notes.txt')
-            break;
-        case 'n':
-            break;
+    if(fs.existsSync('notes.txt')){
+        rl.question('Are you sure you want to delete notes? y/n ', (input) => {
+        switch(input){
+            case 'y':
+                fs.unlink('notes.txt', (err) => {
+                    if(err) console.log("Error deleting notes", err);
+                    else console.log("Notes deleted")
+                })
+                break;
+            case 'n':
+                console.log("Delete aborted")
+                break;
+            }
+        });
     }
-        mainMenu()
-    });
+    else{
+        console.log("No files to delete")
+    }
+    mainMenu()
 }
 
 function invalidChoice(){
